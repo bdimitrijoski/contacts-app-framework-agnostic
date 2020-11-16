@@ -1,4 +1,4 @@
-# Proof of Concept Framwork Agnostic Contacts App
+# Writting Framework Agnostic Contacts App - Proof of Concept
 
 This is a proof of concept app that shows an example how you can write framework agnostic apps and be able to reuse the same code regardless of the framework.
 This sample app is written in React, but the core logic and UI components can be reused with any other framework as well.
