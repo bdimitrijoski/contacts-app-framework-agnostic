@@ -25,7 +25,11 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Contacts App</title>
-
+    <script src="%PUBLIC_URL%/vendor/webcomponents-bundle.js"></script>
+    <script>if (!window.customElements) { document.write("<!--"); }</script>
+    <script src="%PUBLIC_URL%/vendor/custom-elements-es5-adapter.js"></script>
+    <!--! DO NOT REMOVE THIS COMMENT, WE NEED ITS CLOSING MARKER -->
+    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
   
   </head>

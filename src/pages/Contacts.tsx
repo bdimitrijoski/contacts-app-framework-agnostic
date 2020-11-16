@@ -1,84 +1,48 @@
+import { Contact, ContactsListFacade, ContactsListVM } from "../core";
 import React, { useEffect, useState } from "react";
 
-import { ContactCard } from "../components/ContactCard";
-import { ContactDetails } from "../components/ContactDetails";
-import { ContactsPagination } from "../components/ContactsPagination";
 import { ContactsSearchForm } from "../components/ContactsSearchForm";
-import { PageHeader } from "../components/PageHeader";
-import { Contact } from "../models";
+import {
+  ContactCard,
+  ContactDetails,
+  Pagination,
+  PageHeader,
+} from "../components";
 
-export const Contacts = () => {
-  const [contactsVM, setContactsVM] = useState({
-    contacts: [],
-    selectedContact: null,
-    total: 0,
-    params: {
-      page: 1,
-      searchQuery: "",
-    },
-    isLoading: false,
-    hasError: false,
-    errorMsg: "",
-    contactsLoaded: false,
-  });
+export interface ContactsProps {
+  actions: ContactsListFacade;
+}
+const Contacts: React.FC<ContactsProps> = ({ actions }) => {
+  const [contactsVM, setContactsVM] = useState(actions.getInitialState());
 
-  const getContacts = () => {
-    setContactsVM({ ...contactsVM, isLoading: true });
-    const apiUrl = `http://localhost:3001/contacts?_page=${
-      contactsVM.params.page
-    }&limit=10&_sort=name&_order=asc${
-      contactsVM.params.searchQuery ? "&q=" + contactsVM.params.searchQuery : ""
-    }`;
-    fetch(apiUrl)
-      .then((rsp) => {
-        return rsp.json().then((data) => {
-          return { total: +rsp.headers.get("X-Total-Count"), data: data };
-        });
-      })
-      .then((response: any) => {
-        console.log(response);
-        setContactsVM({
-          ...contactsVM,
-          contacts: response.data,
-          total: response.total,
-          contactsLoaded: true,
-          isLoading: false,
-        });
-      });
+  const loadContacts = (action: Promise<ContactsListVM>) => {
+    setContactsVM(actions.setLoading(contactsVM));
+    action.then((newState) => setContactsVM(newState));
   };
 
   const onContactsSearch = (searchTxt: string) => {
-    setContactsVM({
-      ...contactsVM,
-      params: { ...contactsVM.params, searchQuery: searchTxt, page: 1 },
-    });
+    loadContacts(actions.searchContacts(contactsVM, searchTxt));
   };
 
-  const onPageChange = (pageNum: number) => {
-    setContactsVM({
-      ...contactsVM,
-      params: { ...contactsVM.params, page: pageNum },
-    });
+  const onContactSelected = (e: CustomEvent) => {
+    setContactsVM(actions.setSelectedContact(contactsVM, e.detail));
+  };
+
+  const onPageChanged = (e: CustomEvent) => {
+    loadContacts(actions.loadPage(contactsVM, e.detail));
   };
 
   const onDialogClose = () => {
-    setContactsVM({ ...contactsVM, selectedContact: null });
-  };
-
-  const onContactSelected = (contact: Contact) => {
-    setContactsVM({ ...contactsVM, selectedContact: contact });
+    setContactsVM(actions.setSelectedContact(contactsVM, null));
   };
 
   useEffect(() => {
-    getContacts();
-  }, [contactsVM.params]);
+    loadContacts(actions.loadContacts(contactsVM));
+  }, []);
 
   return (
     <div>
-      <PageHeader
-        pageTitle={"Contacts"}
-        pageDescription={"Manage all your contacts"}
-      />
+      <PageHeader title={"Contacts"} description={"Manage all your contacts"} />
       <ContactsSearchForm searchContacts={onContactsSearch} />
 
       <div className="clearfix"></div>
@@ -99,10 +63,10 @@ export const Contacts = () => {
           : "No contacts were found, please create one!"}
 
         {contactsVM.contactsLoaded ? (
-          <ContactsPagination
-            currentPage={contactsVM.params.page}
-            totalRows={contactsVM.total}
-            onPageChanged={onPageChange}
+          <Pagination
+            page={contactsVM.params.page}
+            total={contactsVM.total}
+            onChange={onPageChanged}
           />
         ) : (
           ""
@@ -111,7 +75,7 @@ export const Contacts = () => {
         {contactsVM.selectedContact ? (
           <ContactDetails
             contact={contactsVM.selectedContact}
-            onCloseDialog={onDialogClose}
+            onClose={onDialogClose}
           />
         ) : (
           ""
@@ -120,3 +84,11 @@ export const Contacts = () => {
     </div>
   );
 };
+
+const ContactsHOC = (contactsListFacade: ContactsListFacade) => (
+  WrappedComponent: any
+) => (moreProps: any) => {
+  return <WrappedComponent actions={contactsListFacade} {...moreProps} />;
+};
+
+export default ContactsHOC(new ContactsListFacade())(Contacts);

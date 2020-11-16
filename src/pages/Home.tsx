@@ -1,12 +1,12 @@
 import React from "react";
-import { PageHeader } from "../components/PageHeader";
+import { PageHeader } from "../components";
 
 export const Home: React.FC = ({}) => {
   return (
     <div>
       <PageHeader
-        pageTitle={"Contacts App"}
-        pageDescription={"App for managing your contacts"}
+        title={"Contacts App"}
+        description={"App for managing your contacts"}
       />
       <div className="container">
         <h1 className="page-header">

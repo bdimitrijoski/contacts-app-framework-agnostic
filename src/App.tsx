@@ -4,7 +4,7 @@ import "./App.css";
 import { Route } from "react-router-dom";
 import { Header } from "./components/Header";
 import { Home } from "./pages/Home";
-import { Contacts } from "./pages/Contacts";
+import ContactsList from "./pages/Contacts";
 
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
       <Header />
 
       <Route path="/" exact component={Home} />
-      <Route path="/contacts" exact component={Contacts} />
+      <Route path="/contacts" exact component={ContactsList} />
     </div>
   );
 }
